@@ -1,10 +1,21 @@
 import React from 'react';
+import useWorkflowStore from '../../store/workflowStore';
 import DependencySelector from './DependencySelector';
 
 /**
- * タスク追加/編集用モーダルコンポーネント
+ * タスク追加/編集用モーダルコンポーネント (Zustandを使用)
  */
-const TaskModal = ({ tasks, editingTask, newTask, setNewTask, onSave, onCancel }) => {
+const TaskModal = () => {
+  // Zustandストアから必要な状態と関数を取得
+  const {
+    tasks,
+    editingTask,
+    newTask,
+    setNewTask,
+    handleSaveTask,
+    closeTaskModal
+  } = useWorkflowStore();
+
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
@@ -61,13 +72,13 @@ const TaskModal = ({ tasks, editingTask, newTask, setNewTask, onSave, onCancel }
         <div className="flex justify-end space-x-2">
           <button
             className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded-md"
-            onClick={onCancel}
+            onClick={closeTaskModal}
           >
             Cancel
           </button>
           <button
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
-            onClick={onSave}
+            onClick={handleSaveTask}
           >
             {editingTask ? 'Update' : 'Add'}
           </button>

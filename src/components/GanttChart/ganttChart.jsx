@@ -1,14 +1,13 @@
 import React, { useEffect, useRef } from 'react';
+import useWorkflowStore from '../../store/workflowStore';
 
 /**
- * カスタムガントチャートコンポーネント
+ * カスタムガントチャートコンポーネント (Zustandを使用)
  */
-const GanttChart = ({
-  tasks,
-  startDate,
-  deadlineDate,
-  colors
-}) => {
+const GanttChart = ({ colors }) => {
+  // Zustandストアから必要な状態を取得
+  const { tasks, startDate, deadlineDate } = useWorkflowStore();
+  
   // DOM参照
   const chartContainerRef = useRef(null);
   const tooltipRef = useRef(null);

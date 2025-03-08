@@ -1,9 +1,13 @@
 import React from 'react';
+import useWorkflowStore from '../../store/workflowStore';
 
 /**
- * タスクの依存関係選択コンポーネント
+ * タスクの依存関係選択コンポーネント (Zustandを使用)
  */
-const DependencySelector = ({ tasks, currentTaskId, selectedDependencies, onChange }) => {
+const DependencySelector = ({ currentTaskId, selectedDependencies, onChange }) => {
+  // Zustandストアからタスク一覧を取得
+  const tasks = useWorkflowStore(state => state.tasks);
+
   const handleCheckboxChange = (taskId, isChecked) => {
     if (isChecked) {
       onChange([...selectedDependencies, taskId]);
