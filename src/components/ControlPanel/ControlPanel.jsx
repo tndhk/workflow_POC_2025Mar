@@ -12,6 +12,9 @@ import HolidaySelector from './HolidaySelector';
 const ControlPanel = () => {
   // Zustandストアから必要な状態と関数を取得
   const {
+    currentProject,
+    setProjectName,
+    setProjectDescription,
     selectedPreset,
     setSelectedPreset,
     deadlineDate,
@@ -19,11 +22,61 @@ const ControlPanel = () => {
     selectedCountries,
     setSelectedCountries,
     calculateTaskDates,
-    openAddTaskModal
+    openAddTaskModal,
+    saveProject
   } = useWorkflowStore();
+  
+  // プロジェクト保存処理
+  const handleSaveProject = async () => {
+    try {
+      await saveProject();
+      alert('Project saved successfully!');
+    } catch (error) {
+      console.error('Failed to save project:', error);
+      alert('Failed to save project. Please try again.');
+    }
+  };
 
   return (
     <div className="card">
+      {/* プロジェクト情報 */}
+      <div className="mb-6 border-b pb-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium">Project Information</h3>
+          <div className="text-sm text-gray-500">
+            Local Project
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Project Name
+            </label>
+            <input
+              type="text"
+              className="form-input"
+              value={currentProject.name}
+              onChange={(e) => setProjectName(e.target.value)}
+              placeholder="Enter project name"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Description
+            </label>
+            <textarea
+              className="form-input"
+              value={currentProject.description}
+              onChange={(e) => setProjectDescription(e.target.value)}
+              placeholder="Enter project description"
+              rows="2"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         {/* テンプレート選択 */}
         <PresetSelector 
@@ -62,6 +115,12 @@ const ControlPanel = () => {
           onClick={openAddTaskModal}
         >
           Add Task
+        </button>
+        <button 
+          className="btn bg-green-600 hover:bg-green-700 text-white ml-4"
+          onClick={handleSaveProject}
+        >
+          Save Project
         </button>
       </div>
     </div>
