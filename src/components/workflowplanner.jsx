@@ -1,38 +1,38 @@
-// workflowplanner.jsx を更新
-// useChartPositions フックの参照を削除
 import React from 'react';
-import { useTaskScheduler } from '../hooks/useTaskScheduler';
-// import { useChartPositions } from '../hooks/useChartPositions'; <- この行を削除
+import useWorkflowStore from '../store/workflowStore';
 import ControlPanel from './ControlPanel/controlPanel';
 import GanttChart from './GanttChart/GanttChart';
 import TaskList from './TaskList/TaskList';
 import TaskModal from './TaskModal/TaskModal';
 
 /**
- * ワークフロー計画ツールのメインコンポーネント
+ * ワークフロー計画ツールのメインコンポーネント (Zustandを使用)
  */
 const WorkflowPlanner = () => {
-  // タスクスケジューラフックを使用
+  // Zustandストアから状態と関数を取得
   const {
+    // 状態
     selectedPreset,
-    setSelectedPreset,
     deadlineDate,
-    setDeadlineDate,
     startDate,
     tasks,
     selectedCountries,
-    setSelectedCountries,
     editingTask,
     showTaskModal,
-    setShowTaskModal,
     newTask,
-    setNewTask,
+    
+    // アクション
+    setSelectedPreset,
+    setDeadlineDate,
+    setSelectedCountries,
     calculateTaskDates,
-    handleDeleteTask,
+    deleteTask,
     handleSaveTask,
     openAddTaskModal,
-    openEditTaskModal
-  } = useTaskScheduler();
+    openEditTaskModal,
+    closeTaskModal,
+    setNewTask
+  } = useWorkflowStore();
 
   // チャートの色設定
   const colors = ['#8884d8', '#83a6ed', '#8dd1e1', '#82ca9d', '#a4de6c', '#d0ed57', '#ffc658'];
@@ -88,7 +88,7 @@ const WorkflowPlanner = () => {
       <TaskList 
         tasks={tasks}
         onEditTask={openEditTaskModal}
-        onDeleteTask={handleDeleteTask}
+        onDeleteTask={deleteTask}
       />
       
       {/* タスク追加/編集モーダル */}
@@ -99,7 +99,7 @@ const WorkflowPlanner = () => {
           newTask={newTask}
           setNewTask={setNewTask}
           onSave={handleSaveTask}
-          onCancel={() => setShowTaskModal(false)}
+          onCancel={closeTaskModal}
         />
       )}
     </div>

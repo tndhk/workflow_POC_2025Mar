@@ -1,23 +1,27 @@
 import React from 'react';
 import { WORKFLOW_PRESETS } from '../../data/workflowPresets';
 import { COUNTRY_HOLIDAYS } from '../../data/holidaysData';
+import useWorkflowStore from '../../store/workflowStore';
 import PresetSelector from './PresetSelector';
 import DateSelector from './DateSelector';
 import HolidaySelector from './HolidaySelector';
 
 /**
- * ワークフロー計画ツールのコントロールパネルコンポーネント
+ * ワークフロー計画ツールのコントロールパネルコンポーネント (Zustandを使用)
  */
-const ControlPanel = ({
-  selectedPreset,
-  setSelectedPreset,
-  deadlineDate,
-  setDeadlineDate,
-  selectedCountries,
-  setSelectedCountries,
-  calculateTaskDates,
-  openAddTaskModal
-}) => {
+const ControlPanel = () => {
+  // Zustandストアから必要な状態と関数を取得
+  const {
+    selectedPreset,
+    setSelectedPreset,
+    deadlineDate,
+    setDeadlineDate,
+    selectedCountries,
+    setSelectedCountries,
+    calculateTaskDates,
+    openAddTaskModal
+  } = useWorkflowStore();
+
   return (
     <div className="card">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

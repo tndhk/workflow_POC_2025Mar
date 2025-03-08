@@ -1,10 +1,18 @@
 import React from 'react';
+import useWorkflowStore from '../../store/workflowStore';
 import TaskRow from './TaskRow';
 
 /**
- * タスク一覧表示テーブルコンポーネント
+ * タスク一覧表示テーブルコンポーネント (Zustandを使用)
  */
-const TaskList = ({ tasks, onEditTask, onDeleteTask }) => {
+const TaskList = () => {
+  // Zustandストアから必要な状態と関数を取得
+  const {
+    tasks,
+    openEditTaskModal,
+    deleteTask
+  } = useWorkflowStore();
+
   return (
     <div className="card">
       <h3 className="text-lg font-medium mb-3 text-gray-800">Task List</h3>
@@ -41,8 +49,8 @@ const TaskList = ({ tasks, onEditTask, onDeleteTask }) => {
                 key={task.id}
                 task={task}
                 allTasks={tasks}
-                onEdit={() => onEditTask(task)}
-                onDelete={() => onDeleteTask(task.id)}
+                onEdit={() => openEditTaskModal(task)}
+                onDelete={() => deleteTask(task.id)}
               />
             ))}
           </tbody>
