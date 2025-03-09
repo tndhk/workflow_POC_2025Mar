@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { authService } from '../api/services';
+import { saveToken, removeToken } from '../utils/authUtils';
 
 // 認証情報を管理するZustandストア
 const useAuthStore = create(
@@ -9,72 +11,85 @@ const useAuthStore = create(
       user: null,
       isAuthenticated: false,
       token: null,
+      loading: false,
+      error: null,
       
       // アクション
-      // 注: バックエンド実装時はAPI呼び出しに置き換える
+      setLoading: (loading) => set({ loading }),
+      setError: (error) => set({ error }),
+      setUser: (user) => set({ user }),
+      setAuth: (isAuthenticated) => set({ isAuthenticated }),
+      
+      // ログイン処理
       login: async (username, password) => {
-        // TODO: バックエンド実装時は実際のAPI呼び出しに置き換える
-        if (username && password) {
-          // モック認証 (APIがない場合のテスト用)
-          const mockUser = {
-            id: 'user-123',
-            username,
-            displayName: username,
-            email: `${username}@example.com`
-          };
+        set({ loading: true, error: null });
+        
+        try {
+          const response = await authService.login(username, password);
+          const { token, user } = response;
           
-          const mockToken = 'mock-jwt-token-' + Math.random().toString(36).substring(2);
+          // トークンとユーザー情報を保存
+          saveToken(token, user);
           
-          // ストアの状態を更新
           set({
-            user: mockUser,
+            user,
             isAuthenticated: true,
-            token: mockToken
+            token,
+            loading: false,
+            error: null
           });
           
-          return mockUser;
-        } else {
-          throw new Error('Username and password are required');
+          return user;
+        } catch (error) {
+          const errorMessage = error.error || 'ログインに失敗しました';
+          set({ loading: false, error: errorMessage });
+          throw new Error(errorMessage);
         }
       },
       
-      register: async (username, password) => {
-        // TODO: バックエンド実装時は実際のAPI呼び出しに置き換える
-        if (username && password) {
-          // モック登録 (APIがない場合のテスト用)
-          const mockUser = {
-            id: 'user-' + Math.random().toString(36).substring(2),
-            username,
-            displayName: username,
-            email: `${username}@example.com`
-          };
+      // ユーザー登録処理
+      register: async (username, email, password) => {
+        set({ loading: true, error: null });
+        
+        try {
+          const response = await authService.register(username, email, password);
+          const { token, user } = response;
           
-          const mockToken = 'mock-jwt-token-' + Math.random().toString(36).substring(2);
+          // トークンとユーザー情報を保存
+          saveToken(token, user);
           
-          // ストアの状態を更新
           set({
-            user: mockUser,
+            user,
             isAuthenticated: true,
-            token: mockToken
+            token,
+            loading: false,
+            error: null
           });
           
-          return mockUser;
-        } else {
-          throw new Error('Username and password are required');
+          return user;
+        } catch (error) {
+          const errorMessage = error.error || 'ユーザー登録に失敗しました';
+          set({ loading: false, error: errorMessage });
+          throw new Error(errorMessage);
         }
       },
       
+      // ログアウト処理
       logout: () => {
-        // ログアウト処理
+        // トークンを削除
+        removeToken();
+        
         set({
           user: null,
           isAuthenticated: false,
-          token: null
+          token: null,
+          error: null
         });
       },
       
-      updateProfile: (userData) => {
-        // プロフィール更新
+      // プロフィール更新
+      updateProfile: async (userData) => {
+        // 通常はAPI呼び出しが必要だが、現バックエンドには実装がないためモック
         set((state) => ({
           user: { ...state.user, ...userData }
         }));
