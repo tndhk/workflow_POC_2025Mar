@@ -26,7 +26,7 @@ const Login = () => {
   // 認証済みの場合はダッシュボードへリダイレクト
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard');
+      navigate('/projects');
     }
   }, [isAuthenticated, navigate]);
   
@@ -62,7 +62,7 @@ const Login = () => {
       }
       
       // 成功したらダッシュボードへ
-      navigate('/dashboard');
+      navigate('/projects');
     } catch (err) {
       console.error('認証エラー:', err);
       // エラーは認証ストア内で処理される
