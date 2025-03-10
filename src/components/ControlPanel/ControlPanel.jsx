@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { WORKFLOW_PRESETS } from '../../data/workflowPresets';
 import { COUNTRY_HOLIDAYS } from '../../data/holidaysData';
 import useWorkflowStore from '../../store/workflowStore';
 import PresetSelector from './PresetSelector';
 import DateSelector from './DateSelector';
 import HolidaySelector from './HolidaySelector';
+import { referenceService } from '../../api/services';
 
 /**
  * ワークフロー計画ツールのコントロールパネルコンポーネント (Zustandを使用)
  */
 const ControlPanel = () => {
+  // ローカルステート
+  const [presets, setPresets] = useState(WORKFLOW_PRESETS);
+  const [holidays, setHolidays] = useState(COUNTRY_HOLIDAYS);
+  const [localLoading, setLocalLoading] = useState(false);
+  
   // Zustandストアから必要な状態と関数を取得
   const {
     currentProject,
@@ -23,17 +29,43 @@ const ControlPanel = () => {
     setSelectedCountries,
     calculateTaskDates,
     openAddTaskModal,
-    saveProject
+    saveProject,
+    loading
   } = useWorkflowStore();
+  
+  // リファレンスデータの取得
+  useEffect(() => {
+    const fetchReferenceData = async () => {
+      setLocalLoading(true);
+      try {
+        // プリセットと休日データを並列で取得
+        const [presetsData, holidaysData] = await Promise.all([
+          referenceService.getPresets(),
+          referenceService.getAllHolidays()
+        ]);
+        
+        // データが存在する場合は状態を更新
+        if (presetsData) setPresets(presetsData);
+        if (holidaysData) setHolidays(holidaysData);
+      } catch (error) {
+        console.error('リファレンスデータ取得エラー:', error);
+        // エラー時はデフォルトデータを使用（既に設定済み）
+      } finally {
+        setLocalLoading(false);
+      }
+    };
+    
+    fetchReferenceData();
+  }, []);
   
   // プロジェクト保存処理
   const handleSaveProject = async () => {
     try {
       await saveProject();
-      alert('Project saved successfully!');
+      // 保存成功時の処理はストア内で行われている
     } catch (error) {
-      console.error('Failed to save project:', error);
-      alert('Failed to save project. Please try again.');
+      console.error('プロジェクト保存エラー:', error);
+      // エラー処理はストア内で行われている
     }
   };
 
@@ -42,35 +74,35 @@ const ControlPanel = () => {
       {/* プロジェクト情報 */}
       <div className="mb-6 border-b pb-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium">Project Information</h3>
+          <h3 className="text-lg font-medium">プロジェクト情報</h3>
           <div className="text-sm text-gray-500">
-            Local Project
+            {currentProject.id ? 'サーバー保存済み' : 'ローカルプロジェクト'}
           </div>
         </div>
         
         <div className="grid grid-cols-1 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Project Name
+              プロジェクト名
             </label>
             <input
               type="text"
               className="form-input"
               value={currentProject.name}
               onChange={(e) => setProjectName(e.target.value)}
-              placeholder="Enter project name"
+              placeholder="プロジェクト名を入力"
             />
           </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
+              説明
             </label>
             <textarea
               className="form-input"
               value={currentProject.description}
               onChange={(e) => setProjectDescription(e.target.value)}
-              placeholder="Enter project description"
+              placeholder="プロジェクトの説明を入力"
               rows="2"
             ></textarea>
           </div>
@@ -82,13 +114,15 @@ const ControlPanel = () => {
         <PresetSelector 
           selectedPreset={selectedPreset}
           setSelectedPreset={setSelectedPreset}
-          presets={WORKFLOW_PRESETS}
+          presets={presets}
+          disabled={localLoading}
         />
         
         {/* 締切日選択 */}
         <DateSelector 
           deadlineDate={deadlineDate}
           setDeadlineDate={setDeadlineDate}
+          disabled={localLoading}
         />
       </div>
       
@@ -96,7 +130,8 @@ const ControlPanel = () => {
       <HolidaySelector 
         selectedCountries={selectedCountries}
         setSelectedCountries={setSelectedCountries}
-        countries={COUNTRY_HOLIDAYS}
+        countries={holidays}
+        disabled={localLoading}
       />
       
       {/* アクションボタン */}
@@ -104,23 +139,26 @@ const ControlPanel = () => {
         <button 
           className="btn btn-primary"
           onClick={() => {
-            console.log('Calculating schedule with deadline:', deadlineDate);
+            console.log('スケジュール計算（締切日）:', deadlineDate);
             calculateTaskDates(deadlineDate);
           }}
+          disabled={loading || localLoading}
         >
-          Calculate Schedule
+          スケジュール計算
         </button>
         <button 
           className="btn btn-secondary"
           onClick={openAddTaskModal}
+          disabled={loading || localLoading}
         >
-          Add Task
+          タスク追加
         </button>
         <button 
           className="btn bg-green-600 hover:bg-green-700 text-white ml-4"
           onClick={handleSaveProject}
+          disabled={loading || localLoading}
         >
-          Save Project
+          プロジェクト保存
         </button>
       </div>
     </div>

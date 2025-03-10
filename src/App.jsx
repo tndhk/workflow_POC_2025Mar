@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthProvider';
 import PrivateRoute from './components/Auth/PrivateRoute';
 import Login from './components/Auth/Login';
 import WorkflowPlanner from './components/WorkflowPlanner';
+import ProjectListPage from './pages/ProjectListPage';
 
 /**
  * メインアプリケーションコンポーネント
@@ -19,13 +20,19 @@ const App = () => {
           
           {/* 認証が必要なルート */}
           <Route element={<PrivateRoute />}>
+            {/* プロジェクト一覧 */}
+            <Route path="/projects" element={<ProjectListPage />} />
+            
+            {/* 新規プロジェクト作成 */}
             <Route path="/dashboard" element={<WorkflowPlanner />} />
-            {/* 必要に応じて他のプライベートルートを追加 */}
+            
+            {/* 既存プロジェクト編集 */}
+            <Route path="/dashboard/:projectId" element={<WorkflowPlanner />} />
           </Route>
           
           {/* デフォルトリダイレクト */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<Navigate to="/projects" replace />} />
+          <Route path="*" element={<Navigate to="/projects" replace />} />
         </Routes>
       </AuthProvider>
     </Router>

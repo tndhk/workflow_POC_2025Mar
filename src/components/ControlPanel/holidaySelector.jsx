@@ -3,11 +3,11 @@ import React from 'react';
 /**
  * 休日国選択コンポーネント
  */
-const HolidaySelector = ({ selectedCountries, setSelectedCountries, countries }) => {
+const HolidaySelector = ({ selectedCountries, setSelectedCountries, countries, disabled }) => {
   return (
     <div className="mb-4">
       <label className="block text-sm font-medium text-gray-700 mb-2">
-        Holiday Countries (select multiple)
+        休日設定国（複数選択可）
       </label>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
         {Object.entries(countries).map(([code, country]) => (
@@ -24,8 +24,12 @@ const HolidaySelector = ({ selectedCountries, setSelectedCountries, countries })
                 }
               }}
               className="form-checkbox"
+              disabled={disabled}
             />
-            <label htmlFor={`country-${code}`} className="text-sm">
+            <label 
+              htmlFor={`country-${code}`} 
+              className={`text-sm ml-2 ${disabled ? 'text-gray-500' : ''}`}
+            >
               {country.name}
             </label>
           </div>
